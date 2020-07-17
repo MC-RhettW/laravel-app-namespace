@@ -1,21 +1,26 @@
 {
-    "name": "andrey-helldar/laravel-app",
-    "description": "Provides backwards compatibility for app:name command in the latest Laravel release.",
-    "keywords": ["laravel", "helpers", "console"],
+    "name": "mcdev/laravel-app-namespace",
+    "description": "Provides forward support for app:name .",
+    "keywords": ["laravel", "dev", "console","namespace","support","library"],
     "type": "library",
     "license": "MIT",
     "support": {
-        "issues": "https://github.com/andrey-helldar/laravel-app/issues",
-        "source": "https://github.com/andrey-helldar/laravel-app"
+        "issues": "https://collab.devteam.mankatoclinic.com/",
+        "source": "https://github.com/MC-RhettW/laravel-app-namespace"
     },
     "authors": [
         {
-            "name": "Taylor Otwell",
-            "email": "taylor@laravel.com"
+            "name": "Rhett Waldock",
+            "email": "rhettw@mankatoclinic.com",
+            "role": "Developer (Fork)"
         },
         {
             "name": "Andrey Helldar",
-            "email": "helldar@ai-rus.com"
+            "role": "Developer"
+        },
+        {
+            "name": "Taylor Otwell",
+            "role": "Developer (Upstream)"
         }
     ],
     "require": {
@@ -24,12 +29,9 @@
         "illuminate/filesystem": "^6.0|^7.0|^8.0",
         "illuminate/support": "^6.0|^7.0|^8.0"
     },
-    "suggest": {
-        "laravel/helpers": "Provides backwards compatibility for helpers in the latest Laravel release."
-    },
     "autoload": {
         "psr-4": {
-            "Helldar\\LaravelApp\\": "src/"
+            "MCDev\\LaravelAppNamespace\\": "src/"
         }
     },
     "config": {
@@ -41,7 +43,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Helldar\\LaravelApp\\ServiceProvider"
+                "MCDev\\LaravelAppNamespace\\ServiceProvider"
             ]
         }
     }
