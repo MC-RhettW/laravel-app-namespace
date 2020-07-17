@@ -1,4 +1,4 @@
-#Laravel App Namespace Command
+## Laravel App Namespace Command
 
 Provides forward support for the Laravel 5.8 `app:name` command in Laravel 6 and Laravel 7 applications. Based on [Laravel App](https://github.com/andrey-helldar/laravel-app) by Andrey Helldar.
 
