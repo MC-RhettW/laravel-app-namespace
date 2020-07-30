@@ -1,13 +1,14 @@
 <?php
 /**
- * LaravelAppNamespace\Commands\AppName.php.
- * @author RhettW
- * @package MCDev
- * @subpackage LaravelSupport
+ * AppNamespaceSupport\Commands\AppNamespaceCommand.php.
+ *
+ * @author     RhettW
+ * @package    mcphp/support
+ * @subpackage illuminate
  * @mc-cblog <<<
  *  =================================================================
- * TITLE:           LaravelAppNamespace\Commands\AppName.php
- * DESCRIPTION:	    Command class providing app:name command for Laravel application
+ * TITLE:           AppNamespaceSupport\Commands\AppNamespaceCommand.php
+ * DESCRIPTION:        Command class providing app:name command for Laravel application
  *
  * DATE                 USER            DESC
  * ------------------------------------------------------------------
@@ -16,59 +17,66 @@
  *
  * ===================================================================
  * >>>
-*/
+ */
 
-namespace MCDev\LaravelAppNamespace\Commands;
+namespace MCDev\AppNamespaceSupport\Commands;
 
+use BadFunctionCallException;
 use Illuminate\Console\Command;
-use Illuminate\Contracts\Filesystem\FileNotFoundException as FileNotFoundException;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Composer;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\String\Exception\InvalidArgumentException as InvalidArgumentException;
+use Symfony\Component\String\Exception\InvalidArgumentException;
+
 
 /**
- * @property  laravel
- * @method argument(string $string)
+ * Application Namespace command class
  */
-class AppName extends Command
+class AppNamespaceCommand extends Command
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'app:name';
-
+    protected $signature = 'app:namespace {name : The app namespace to use}';
+    
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Set the application namespace';
-
+    
+    /**
+     * The Laravel application instance.
+     *
+     * @var \Illuminate\Contracts\Foundation\Application
+     */
+    protected $laravel;
+    
     /**
      * The Composer class instance.
      *
      * @var Composer
      */
     protected $composer;
-
+    
     /**
      * The filesystem instance.
      *
      * @var Filesystem
      */
     protected $files;
-
+    
     /**
      * Current root application namespace.
      *
      * @var string
      */
     protected $currentRoot;
-
+    
     /**
      * Create a new key generator command.
      *
@@ -78,11 +86,12 @@ class AppName extends Command
     public function __construct( Composer $composer, Filesystem $files )
     {
         parent::__construct();
-
+        
         $this->files = $files;
         $this->composer = $composer;
+        
     }
-
+    
     /**
      * Execute the console command.
      *
@@ -91,26 +100,26 @@ class AppName extends Command
      */
     public function handle()
     {
-
+        
         if ( !$this->validateNamespace() )
-            throw new InvalidArgumentException( 'Invalid namespace provided to app:name command.' );
-
+            throw new InvalidArgumentException( 'Invalid namespace provided to app:namespace command.' );
+        
         $this->currentRoot = trim( $this->laravel->getNamespace(), '\\' );
-
+        
         $this->setAppDirectoryNamespace();
         $this->setBootstrapNamespaces();
         $this->setConfigNamespaces();
         $this->setComposerNamespace();
         $this->setDatabaseFactoryNamespaces();
-
-        $this->info( 'Application namespace set!' );
-
+        
+        $this->info( 'Application namespace set.' );
+        
         $this->composer->dumpAutoloads();
-
+        
         $this->call( 'optimize:clear' );
-
+        
     }
-
+    
     /**
      * Check the provided namespace for invalid characters
      *
@@ -120,7 +129,7 @@ class AppName extends Command
     {
         return preg_match( '/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$/', $this->argument( 'name' ) ) == 1;
     }
-
+    
     /**
      * Set the namespace on the files in the app directory.
      *
@@ -129,13 +138,13 @@ class AppName extends Command
     protected function setAppDirectoryNamespace()
     {
         $files = Finder::create()
-                       ->in( $this->laravel['path'] )
-                       ->contains( $this->currentRoot )
-                       ->name( '*.php' );
-
+          ->in( $this->laravel['path'] )
+          ->contains( $this->currentRoot )
+          ->name( '*.php' );
+        
         foreach ( $files as $file ) $this->replaceNamespace( $file->getRealPath() );
     }
-
+    
     /**
      * Replace the App namespace at the given path.
      *
@@ -146,18 +155,18 @@ class AppName extends Command
     protected function replaceNamespace( $path )
     {
         $search = [
-            'namespace ' . $this->currentRoot . ';',
-            $this->currentRoot . '\\',
+          'namespace ' . $this->currentRoot . ';',
+          $this->currentRoot . '\\',
         ];
-
+        
         $replace = [
-            'namespace ' . $this->argument( 'name' ) . ';',
-            $this->argument( 'name' ) . '\\',
+          'namespace ' . $this->argument( 'name' ) . ';',
+          $this->argument( 'name' ) . '\\',
         ];
-
+        
         $this->replaceIn( $path, $search, $replace );
     }
-
+    
     /**
      * Replace the given string in the given file.
      *
@@ -172,7 +181,7 @@ class AppName extends Command
         if ( $this->files->exists( $path ) )
             $this->files->put( $path, str_replace( $search, $replace, $this->files->get( $path ) ) );
     }
-
+    
     /**
      * Set the bootstrap namespaces.
      *
@@ -181,20 +190,20 @@ class AppName extends Command
     protected function setBootstrapNamespaces()
     {
         $search = [
-            $this->currentRoot . '\\Http',
-            $this->currentRoot . '\\Console',
-            $this->currentRoot . '\\Exceptions',
+          $this->currentRoot . '\\Http',
+          $this->currentRoot . '\\Console',
+          $this->currentRoot . '\\Exceptions',
         ];
-
+        
         $replace = [
-            $this->argument( 'name' ) . '\\Http',
-            $this->argument( 'name' ) . '\\Console',
-            $this->argument( 'name' ) . '\\Exceptions',
+          $this->argument( 'name' ) . '\\Http',
+          $this->argument( 'name' ) . '\\Console',
+          $this->argument( 'name' ) . '\\Exceptions',
         ];
-
+        
         $this->replaceIn( $this->getBootstrapPath(), $search, $replace );
     }
-
+    
     /**
      * Get the path to the bootstrap/app.php file.
      *
@@ -204,7 +213,7 @@ class AppName extends Command
     {
         return $this->laravel->bootstrapPath() . '/app.php';
     }
-
+    
     /**
      * Set the namespace in the appropriate configuration files.
      *
@@ -216,7 +225,7 @@ class AppName extends Command
         $this->setAuthConfigNamespace();
         $this->setServicesConfigNamespace();
     }
-
+    
     /**
      * Set the application provider namespaces.
      *
@@ -225,18 +234,18 @@ class AppName extends Command
     protected function setAppConfigNamespaces()
     {
         $search = [
-            $this->currentRoot . '\\Providers',
-            $this->currentRoot . '\\Http\\Controllers\\',
+          $this->currentRoot . '\\Providers',
+          $this->currentRoot . '\\Http\\Controllers\\',
         ];
-
+        
         $replace = [
-            $this->argument( 'name' ) . '\\Providers',
-            $this->argument( 'name' ) . '\\Http\\Controllers\\',
+          $this->argument( 'name' ) . '\\Providers',
+          $this->argument( 'name' ) . '\\Http\\Controllers\\',
         ];
-
+        
         $this->replaceIn( $this->getConfigPath( 'app' ), $search, $replace );
     }
-
+    
     /**
      * Get the path to the given configuration file.
      *
@@ -248,7 +257,7 @@ class AppName extends Command
     {
         return $this->laravel['path.config'] . '/' . $name . '.php';
     }
-
+    
     /**
      * Set the authentication User namespace.
      *
@@ -257,12 +266,12 @@ class AppName extends Command
     protected function setAuthConfigNamespace()
     {
         $this->replaceIn(
-            $this->getConfigPath( 'auth' ),
-            $this->currentRoot . '\\User',
-            $this->argument( 'name' ) . '\\User'
+          $this->getConfigPath( 'auth' ),
+          $this->currentRoot . '\\User',
+          $this->argument( 'name' ) . '\\User'
         );
     }
-
+    
     /**
      * Set the services User namespace.
      *
@@ -271,12 +280,12 @@ class AppName extends Command
     protected function setServicesConfigNamespace()
     {
         $this->replaceIn(
-            $this->getConfigPath( 'services' ),
-            $this->currentRoot . '\\User',
-            $this->argument( 'name' ) . '\\User'
+          $this->getConfigPath( 'services' ),
+          $this->currentRoot . '\\User',
+          $this->argument( 'name' ) . '\\User'
         );
     }
-
+    
     /**
      * Set the PSR-4 namespace in the Composer file.
      *
@@ -285,12 +294,12 @@ class AppName extends Command
     protected function setComposerNamespace()
     {
         $this->replaceIn(
-            $this->getComposerPath(),
-            str_replace( '\\', '\\\\', $this->currentRoot ) . '\\\\',
-            str_replace( '\\', '\\\\', $this->argument( 'name' ) ) . '\\\\'
+          $this->getComposerPath(),
+          str_replace( '\\', '\\\\', $this->currentRoot ) . '\\\\',
+          str_replace( '\\', '\\\\', $this->argument( 'name' ) ) . '\\\\'
         );
     }
-
+    
     /**
      * Get the path to the Composer.json file.
      *
@@ -298,9 +307,9 @@ class AppName extends Command
      */
     protected function getComposerPath()
     {
-        return base_path( 'composer.json' );
+        return ( function_exists( 'base_path' ) ? base_path( 'composer.json' ) : 'composer.json' );
     }
-
+    
     /**
      * Set the namespace in database factory files.
      *
@@ -308,28 +317,22 @@ class AppName extends Command
      */
     protected function setDatabaseFactoryNamespaces()
     {
-        $files = Finder::create()
-                       ->in( database_path( 'factories' ) )
-                       ->contains( $this->currentRoot )
-                       ->name( '*.php' );
-
-        foreach ( $files as $file ) $this->replaceIn(
-            $file->getRealPath(),
-            $this->currentRoot,
-            $this->argument( 'name' )
-        );
-
-    }
-
-    /**
-     * Get the console command arguments.
-     *
-     * @return array
-     */
-    protected function getArguments()
-    {
-        return [
-            ['name', InputArgument::REQUIRED, 'The desired namespace'],
-        ];
+        try {
+            $files = Finder::create()
+                           ->in( database_path( 'factories' ) )
+                           ->contains( $this->currentRoot )
+                           ->name( '*.php' );
+            
+            foreach ( $files as $file ) $this->replaceIn(
+              $file->getRealPath(),
+              $this->currentRoot,
+              $this->argument( 'name' )
+            );
+        } catch ( BadFunctionCallException $exception ) {
+            $this->error( 'Error calling function: ' . $exception->getMessage() );
+            $this->info( 'This command is designed to be called from within a Laravel/Illuminate application.' );
+            exit( 1 );
+        }
+        
     }
 }

@@ -1,7 +1,15 @@
 {
     "name": "mcdev/laravel-app-namespace",
-    "description": "Provides forward support for app:name .",
-    "keywords": ["laravel", "dev", "console","namespace","support","library"],
+    "description": "Provides forward support for app:name",
+    "keywords": [
+        "laravel",
+        "dev",
+        "console",
+        "namespace",
+        "support",
+        "library",
+        "illuminate"
+    ],
     "type": "library",
     "license": "MIT",
     "support": {
@@ -16,7 +24,7 @@
         },
         {
             "name": "Andrey Helldar",
-            "role": "Developer"
+            "role": "Developer (Upstream)"
         },
         {
             "name": "Taylor Otwell",
@@ -31,7 +39,7 @@
     },
     "autoload": {
         "psr-4": {
-            "MCDev\\LaravelAppNamespace\\": "src/"
+            "MCDev\\AppNamespaceSupport\\": "src/"
         }
     },
     "config": {
@@ -43,7 +51,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "MCDev\\LaravelAppNamespace\\ServiceProvider"
+                "MCDev\\AppNamespaceSupport\\ServiceProvider"
             ]
         }
     }

@@ -1,6 +1,8 @@
 ## Laravel App Namespace Command
 
-Provides forward support for the Laravel 5.8 `app:name` command in Laravel 6 and Laravel 7 applications. Based on [Laravel App](https://github.com/andrey-helldar/laravel-app) by Andrey Helldar.
+Provides forward support for the Laravel 5.8 command `app:name` (as `app:namespace`) in Illuminate-based applications. 
+
+Based on [Laravel App](https://github.com/andrey-helldar/laravel-app) by Andrey Helldar.
 
 ### Installation
 Add the private repository to the `repositories` block of your Laravel project's composer.json file:
@@ -28,7 +30,7 @@ Then add the package to the `require-dev` block:
 You may also use composer to update your dev requirements block:
 
 ```
-composer require mcdev/laravel-appnamespace --dev
+composer mcdev/laravel-app-namespace --dev
 ```
 
 ### Usage
@@ -36,5 +38,5 @@ composer require mcdev/laravel-appnamespace --dev
 Set the application namespace by console command:
 
 ```
-php artisan app:name <name>
+php artisan app:namespace <name>
 ```
