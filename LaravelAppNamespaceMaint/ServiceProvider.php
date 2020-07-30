@@ -17,21 +17,22 @@
  * >>>
 */
 
-namespace MCDev\LaravelAppNamespace;
+namespace MCDev\LaravelAppNamespaceMaint;
 
-use MCDev\LaravelAppNamespace\Commands\AppName;
+use MCDev\LaravelAppNamespaceMaint\Commands\AppNamespaceCommand;
+
 
 /**
- * @method commands(string[] $array)
+ * @method commands( string[] $array )
  */
 class ServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     protected $defer = false;
-
-    public function boot()
+    
+    public function boot ()
     {
-        if ($this->app->runningInConsole()) $this->commands([
-            AppName::class,
-        ]);
+        if ( $this->app->runningInConsole() ) $this->commands( [
+          AppNamespaceCommand::class,
+        ] );
     }
 }
